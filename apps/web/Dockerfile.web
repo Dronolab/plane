@@ -18,6 +18,10 @@ ARG TURBO_VERSION=2.10.11
 RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
 COPY . .
 
+# Dronolab: a Windows checkout turns the packages/i18n/locales symlink into a text file,
+# which leaves the build without translations. Recreate the link (a no-op on Linux).
+RUN if [ ! -L packages/i18n/locales ]; then rm -f packages/i18n/locales && ln -s src/locales packages/i18n/locales; fi
+
 RUN turbo prune --scope=web --docker
 
 # *****************************************************************************
