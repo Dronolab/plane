@@ -106,11 +106,15 @@ export const MyItemsQuickFilters = observer(function MyItemsQuickFilters(props: 
     [applyExpression, issuesFilter, projectId]
   );
 
+  // The filter bar's instance is created after the saved filters load; applying the default before it
+  // exists gets overwritten when it initialises with the old (empty) filters.
+  const isFilterInstanceReady = !!getFilter(EIssuesStoreType.PROJECT, projectId);
+
   // Dronolab: enable "Assigned to me" by default on the first visit per project+user; subsequent choices persist.
   useEffect(() => {
-    if (!isFiltersLoaded || !userId || !assignedCondition) return;
+    if (!isFiltersLoaded || !isFilterInstanceReady || !userId || !assignedCondition) return;
 
-    const storageKey = `dronolab:my-items-default:${projectId}:${userId}`;
+    const storageKey = `dronolab:my-items-default:v2:${projectId}:${userId}`;
     if (appliedDefaultKeyRef.current === storageKey) return;
     appliedDefaultKeyRef.current = storageKey;
 
@@ -127,7 +131,7 @@ export const MyItemsQuickFilters = observer(function MyItemsQuickFilters(props: 
     if (!alreadyAssigned) {
       toggleCondition(assignedCondition);
     }
-  }, [assignedCondition, isFiltersLoaded, issuesFilter, projectId, toggleCondition, userId]);
+  }, [assignedCondition, isFiltersLoaded, isFilterInstanceReady, issuesFilter, projectId, toggleCondition, userId]);
 
   if (!userId || !assignedCondition || !createdCondition) return null;
 
