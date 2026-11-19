@@ -25,7 +25,8 @@ class EpicViewSet(IssueViewSet):
         if hasattr(request.data, "_mutable"):
             request.data._mutable = True
         request.data["type"] = str(epic_type.id)
-        return super().create(request, slug, project_id)
+        # The permission decorator on the parent reads slug and project_id from kwargs.
+        return super().create(request, slug=slug, project_id=project_id)
 
 
 class EpicPaginatedViewSet(IssuePaginatedViewSet):

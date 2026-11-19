@@ -43,8 +43,8 @@ from plane.db.models import (
     IssueDescriptionVersion,
     ProjectMember,
     EstimatePoint,
-    ProjectIssueType,
 )
+from plane.db.models.issue_type import ProjectIssueType
 from plane.utils.content_validator import (
     validate_html_content,
     validate_binary_data,

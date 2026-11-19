@@ -3,7 +3,8 @@
 
 from django.db.models import Q
 
-from plane.db.models import IssueType, ProjectIssueType
+from plane.db.models import IssueType
+from plane.db.models.issue_type import ProjectIssueType
 
 EPIC, STORY, TASK = "Epic", "Story", "Task"
 
