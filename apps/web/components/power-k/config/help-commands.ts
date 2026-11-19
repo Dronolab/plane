@@ -7,6 +7,8 @@
 import { ChatOutline, DocumentationOutline, Github, RocketOutline } from "@makeplane/propel/icons";
 // components
 import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
+// helpers
+import { DRONOLAB_DISCORD_URL, DRONOLAB_GUIDE_URL, DRONOLAB_ISSUES_URL } from "@/helpers/dronolab";
 // hooks
 import { usePowerK } from "@/hooks/store/use-power-k";
 
@@ -37,7 +39,8 @@ export const usePowerKHelpCommands = (): TPowerKCommandConfig[] => {
       i18n_title: "power_k.help_actions.open_plane_documentation",
       icon: DocumentationOutline,
       action: () => {
-        window.open("https://docs.plane.so/", "_blank", "noopener,noreferrer");
+        // Dronolab: point documentation command to Dronolab guide
+        window.open(DRONOLAB_GUIDE_URL, "_blank", "noopener,noreferrer");
       },
       isEnabled: () => true,
       isVisible: () => true,
@@ -50,7 +53,8 @@ export const usePowerKHelpCommands = (): TPowerKCommandConfig[] => {
       i18n_title: "power_k.help_actions.join_forum",
       icon: ChatOutline,
       action: () => {
-        window.open("https://forum.plane.so", "_blank", "noopener,noreferrer");
+        // Dronolab: point forum command to Dronolab Discord
+        window.open(DRONOLAB_DISCORD_URL, "_blank", "noopener,noreferrer");
       },
       isEnabled: () => true,
       isVisible: () => true,
@@ -63,7 +67,8 @@ export const usePowerKHelpCommands = (): TPowerKCommandConfig[] => {
       i18n_title: "power_k.help_actions.report_bug",
       icon: Github,
       action: () => {
-        window.open("https://github.com/makeplane/plane/issues/new/choose", "_blank", "noopener,noreferrer");
+        // Dronolab: point bug report command to Dronolab issues
+        window.open(DRONOLAB_ISSUES_URL, "_blank", "noopener,noreferrer");
       },
       isEnabled: () => true,
       isVisible: () => true,

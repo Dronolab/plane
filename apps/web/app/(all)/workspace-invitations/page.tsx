@@ -18,6 +18,7 @@ import { LogoSpinner } from "@/components/common/logo-spinner";
 import { WORKSPACE_INVITATION } from "@plane/constants";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
+import { DRONOLAB_DISCORD_URL, DRONOLAB_GUIDE_URL } from "@/helpers/dronolab";
 // hooks
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -135,19 +136,20 @@ function WorkspaceInvitationPage() {
                     render={<Link href="/" />}
                   />
                   <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                    {/* Dronolab: club links in place of Plane's GitHub and forum */}
                     <AnchorButton
                       variant="secondary"
                       size="md"
-                      href="https://github.com/makeplane"
+                      href={DRONOLAB_DISCORD_URL}
                       external
-                      label="Star us on GitHub"
+                      label="Rejoindre le Discord Dronolab"
                     />
                     <AnchorButton
                       variant="secondary"
                       size="md"
-                      href="https://forum.plane.so"
+                      href={DRONOLAB_GUIDE_URL}
                       external
-                      label="Join our community of active creators"
+                      label="Guide d'intégration Dronolab"
                     />
                     <AnchorButton
                       variant="secondary"

@@ -4,12 +4,16 @@
  * See the LICENSE file for details.
  */
 
+// helpers
+import { DRONOLAB_EMAIL } from "@/helpers/dronolab";
+
 export function MaintenanceMessage() {
   const linkMap = [
     {
       key: "mail_to",
       label: "Contact Support",
-      value: "mailto:support@plane.so",
+      // Dronolab: use Dronolab support email
+      value: `mailto:${DRONOLAB_EMAIL}`,
     },
   ];
 

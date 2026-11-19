@@ -8,15 +8,15 @@
 import { Button } from "@makeplane/propel/components/button";
 import { Icon } from "@makeplane/propel/components/icon";
 import { IconButton } from "@makeplane/propel/components/icon-button";
-import { Github } from "@makeplane/propel/icons";
-import { useTranslation } from "@plane/i18n";
+import { GlobeOutline } from "@makeplane/propel/icons";
+// Dronolab: the top bar links to the club's website instead of "Star us on GitHub".
+import { DRONOLAB_WEBSITE_URL } from "@/helpers/dronolab";
 
-const GITHUB_REPO_URL = "https://github.com/makeplane/plane";
+const GITHUB_REPO_URL = DRONOLAB_WEBSITE_URL;
+const Github = GlobeOutline;
 
 export function StarUsOnGitHubLink() {
-  // plane hooks
-  const { t } = useTranslation();
-  const label = t("home.star_us_on_github");
+  const label = "Dronolab";
 
   return (
     <>

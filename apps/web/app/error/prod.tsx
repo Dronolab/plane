@@ -8,24 +8,17 @@
 import { AnchorButton } from "@makeplane/propel/components/anchor-button";
 import { Button } from "@makeplane/propel/components/button";
 import { EmptyStateDetailed } from "@plane/blocks/empty-state";
+// helpers
+import { DRONOLAB_EMAIL } from "@/helpers/dronolab";
 // layouts
 import DefaultLayout from "@/layouts/default-layout";
 
+// Dronolab: use Dronolab support email and drop upstream Plane status/X links
 const linkMap = [
   {
     key: "mail_to",
     label: "Contact Support",
-    value: "mailto:support@plane.so",
-  },
-  {
-    key: "status",
-    label: "Status Page",
-    value: "https://status.plane.so/",
-  },
-  {
-    key: "twitter_handle",
-    label: "@planepowers",
-    value: "https://x.com/planepowers",
+    value: `mailto:${DRONOLAB_EMAIL}`,
   },
 ];
 
