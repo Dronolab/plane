@@ -27,6 +27,8 @@ import { AuthService } from "@/services/auth.service";
 // local components
 import { FormContainer } from "./common/container";
 import { AuthFormHeader } from "./common/header";
+// Dronolab: school email placeholder
+import { DRONOLAB_EMAIL_PLACEHOLDER } from "@/helpers/dronolab";
 
 type TResetPasswordFormValues = {
   email: string;
@@ -122,7 +124,7 @@ export const SetPasswordForm = observer(function SetPasswordForm() {
           name="email"
           type="email"
           value={user?.email}
-          placeholder={t("auth.common.email.placeholder")}
+          placeholder={DRONOLAB_EMAIL_PLACEHOLDER}
           autoComplete="off"
           disabled
         />

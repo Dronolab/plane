@@ -6,9 +6,7 @@
 
 import {
   CreateFolderOutline,
-  CyclesOutline,
   DocumentationOutline,
-  ModuleOutline,
   PlusSquareOutline,
   WorkItemsOutline,
 } from "@makeplane/propel/icons";
@@ -27,8 +25,7 @@ export type TPowerKCreationCommandKeys =
   | "create_work_item"
   | "create_page"
   | "create_view"
-  | "create_cycle"
-  | "create_module"
+  // Dronolab: no cycles/modules
   | "create_project"
   | "create_workspace";
 
@@ -46,8 +43,6 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
   const {
     toggleCreateIssueModal,
     toggleCreateProjectModal,
-    toggleCreateCycleModal,
-    toggleCreateModuleModal,
     toggleCreateViewModal,
     toggleCreatePageModal,
   } = useCommandPalette();
@@ -110,32 +105,7 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
         ),
       closeOnSelect: true,
     },
-    create_cycle: {
-      id: "create_cycle",
-      type: "action",
-      group: "create",
-      i18n_title: "power_k.creation_actions.create_cycle",
-      icon: CyclesOutline,
-      keySequence: "nc",
-      action: () => toggleCreateCycleModal(true),
-      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.cycle_view && hasProjectMemberLevelPermissions(ctx)),
-      isVisible: (ctx) =>
-        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.cycle_view && hasProjectMemberLevelPermissions(ctx)),
-      closeOnSelect: true,
-    },
-    create_module: {
-      id: "create_module",
-      type: "action",
-      group: "create",
-      i18n_title: "power_k.creation_actions.create_module",
-      icon: ModuleOutline,
-      keySequence: "nm",
-      action: () => toggleCreateModuleModal(true),
-      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),
-      isVisible: (ctx) =>
-        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),
-      closeOnSelect: true,
-    },
+    // Dronolab: no cycles/modules
     create_project: {
       id: "create_project",
       type: "action",

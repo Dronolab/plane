@@ -14,12 +14,10 @@ import { useTranslation } from "@plane/i18n";
 import type { ISearchIssueResponse, TIssue } from "@plane/types";
 import { renderFormattedPayloadDate, getDate, getTabIndex } from "@plane/utils";
 // components
-import { CycleSelect } from "@/components/dropdowns/cycle/cycle-select";
 import { EstimateSelect } from "@/components/dropdowns/estimate/estimate-select";
 import { IntakeStateSelect } from "@/components/dropdowns/intake-state/intake-state-select";
 import { LabelSelect } from "@/components/dropdowns/label/label-select";
 import { MemberSelect } from "@/components/dropdowns/member/member-select";
-import { ModuleSelect } from "@/components/dropdowns/module/module-select";
 import { PrioritySelect } from "@/components/dropdowns/priority/priority-select";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
 // hooks
@@ -129,30 +127,7 @@ export const InboxIssueProperties = observer(function InboxIssueProperties(props
         tabIndex={getIndex("target_date")}
       />
 
-      {/* cycle */}
-      {isVisible && (
-        <CycleSelect
-          value={data?.cycle_id || null}
-          onChange={(cycleId) => handleData("cycle_id", cycleId)}
-          projectId={projectId}
-          placeholder="Cycle"
-          variant="pill-md"
-          tabIndex={getIndex("cycle_id")}
-        />
-      )}
-
-      {/* module */}
-      {isVisible && (
-        <ModuleSelect
-          multiple
-          projectId={projectId}
-          value={data?.module_ids || []}
-          onChange={(moduleIds) => handleData("module_ids", moduleIds)}
-          placeholder="Modules"
-          variant="pill-md"
-          tabIndex={getIndex("module_ids")}
-        />
-      )}
+      {/* Dronolab: no cycles/modules */}
 
       {/* estimate */}
       {isVisible && projectId && areEstimateEnabledByProjectId(projectId) && (

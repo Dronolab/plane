@@ -15,6 +15,8 @@ import { Button } from "@makeplane/propel/components/button";
 import { InputField } from "@makeplane/propel/components/input-field";
 import type { IEmailCheckData } from "@plane/types";
 import { checkEmailValidity } from "@plane/utils";
+// Dronolab: school email placeholder
+import { DRONOLAB_EMAIL_PLACEHOLDER } from "@/helpers/dronolab";
 // helpers
 type TAuthEmailForm = {
   defaultEmail: string;
@@ -61,7 +63,7 @@ export const AuthEmailForm = observer(function AuthEmailForm(props: TAuthEmailFo
         onChange={(e) => setEmail(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholder={t("auth.common.email.placeholder")}
+        placeholder={DRONOLAB_EMAIL_PLACEHOLDER}
         autoComplete="off"
         autoFocus
         ref={inputRef}

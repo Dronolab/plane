@@ -23,7 +23,6 @@ import { cn, generateWorkItemLink } from "@plane/utils";
 // components
 import { MultipleSelectEntityAction } from "@/components/core/multiple-select";
 import { IssueProperties } from "@/components/issues/issue-layouts/properties";
-import { IssueIdentifier } from "@/components/issues/issue-detail/issue-identifier";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -33,6 +32,8 @@ import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 import { calculateIdentifierWidth } from "../utils";
 import type { TRenderQuickActions } from "./list-view-types";
+import { IdentifierText } from "@/components/issues/issue-detail/identifier-text";
+import { WorkItemTypeBadge, useWorkItemTypes } from "@/components/issues/work-item-type-badge";
 
 interface IssueBlockProps {
   issueId: string;
@@ -51,7 +52,18 @@ interface IssueBlockProps {
   setIsCurrentBlockDragging: React.Dispatch<React.SetStateAction<boolean>>;
   canDrag: boolean;
   isEpic?: boolean;
+  /** Dronolab: the children shown under this row come from the list group itself (no fetch needed). */
+  hasListChildren?: boolean;
+  /** Dronolab: child rows are currently rendered under this row. */
+  hasRenderedChildren?: boolean;
+  /** Dronolab: for each ancestor level, whether a sibling follows below (tree guide lines). */
+  treeContinuations?: boolean[];
 }
+
+// Dronolab: indentation per nesting level in the list layout, in px
+export const LIST_TREE_INDENT = 20;
+// Dronolab: x of the guide line under a level's chevron (chevron is 16px wide, line is 1px)
+const treeLineX = (level: number) => level * LIST_TREE_INDENT + 7;
 
 export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
   const {
@@ -71,6 +83,9 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
     setIsCurrentBlockDragging,
     canDrag,
     isEpic = false,
+    hasListChildren = false,
+    hasRenderedChildren = false,
+    treeContinuations = [],
   } = props;
   // ref
   const issueRef = useRef<HTMLDivElement | null>(null);
@@ -86,6 +101,7 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
     peekIssue,
     setPeekIssue,
     subIssues: subIssuesStore,
+    issue: { getIssueById },
   } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
 
   const handleIssuePeekOverview = (issue: TIssue) =>
@@ -107,6 +123,9 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
   const subIssuesCount = issue?.sub_issues_count ?? 0;
   const canEditIssueProperties = canEditProperties(issue?.project_id ?? undefined);
   const isDraggingAllowed = canDrag && canEditIssueProperties;
+  // Dronolab: reserve a fixed slot for the type badge so identifiers and titles line up
+  const workItemTypes = useWorkItemTypes(workspaceSlug, issue?.project_id ?? undefined);
+  const hasWorkItemTypes = !!workItemTypes && workItemTypes.length > 0;
 
   const { isMobile } = usePlatformOS();
   // Room for the property chips while the row is single-line (`md:flex-row` / `lg:flex-row` below).
@@ -144,11 +163,20 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
   const canSelectIssues = canEditIssueProperties && !selectionHelpers.isSelectionDisabled;
 
   const marginLeft = `${spacingLeft}px`;
+  // Dronolab: the parent work item, named next to the title when this row is not nested under it
+  const parentIssue = issue.parent_id ? (issuesMap[issue.parent_id] ?? getIssueById(issue.parent_id)) : undefined;
+  // Dronolab: vertical middle of the first line (rows switch to a single line at md/lg)
+  const midTop = isSidebarCollapsed ? "top-[22px] md:top-1/2" : "top-[22px] lg:top-1/2";
+  const midHeight = isSidebarCollapsed ? "h-[22px] md:h-1/2" : "h-[22px] lg:h-1/2";
+  const showTreeGuides = !isEpic && (isSubIssue || hasRenderedChildren);
 
   const handleToggleExpand = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    if (nestingLevel >= 3) {
+    // Dronolab: children already in the list are just shown/hidden, at any depth
+    if (hasListChildren) {
+      setExpanded((prevState) => !prevState);
+    } else if (nestingLevel >= 3) {
       handleIssuePeekOverview(issue);
     } else {
       setExpanded((prevState) => {
@@ -212,6 +240,42 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
           }
         }}
       >
+        {/* Dronolab: tree guide lines linking each work item to its parent */}
+        {showTreeGuides && (
+          <div aria-hidden className="pointer-events-none absolute inset-0 px-page-x">
+            <div className="relative h-full">
+              {treeContinuations.map((hasNext, level) => {
+                const isOwnLevel = level === nestingLevel - 1;
+                if (!isOwnLevel && !hasNext) return null;
+                return (
+                  <span
+                    key={level}
+                    className={cn("absolute top-0 border-l border-strong", {
+                      "-bottom-px": hasNext,
+                      [midHeight]: isOwnLevel && !hasNext,
+                    })}
+                    style={{ left: `${treeLineX(level)}px` }}
+                  />
+                );
+              })}
+              {isSubIssue && (
+                <span
+                  className={cn("absolute border-t border-strong", midTop)}
+                  style={{
+                    left: `${treeLineX(nestingLevel - 1)}px`,
+                    width: `${LIST_TREE_INDENT - 8 + (subIssuesCount > 0 || hasListChildren ? 0 : 10)}px`,
+                  }}
+                />
+              )}
+              {hasRenderedChildren && (
+                <span
+                  className={cn("absolute -bottom-px mt-2.5 border-l border-strong", midTop)}
+                  style={{ left: `${treeLineX(nestingLevel)}px` }}
+                />
+              )}
+            </div>
+          </div>
+        )}
         <div className="flex w-full gap-2 truncate">
           <div className="flex flex-grow items-center gap-0.5 truncate">
             <div ref={leadingRef} className="flex items-center gap-1" style={isSubIssue ? { marginLeft } : {}}>
@@ -238,27 +302,14 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
                   </div>
                 </Tooltip>
               )}
-              {displayProperties && (displayProperties.key || displayProperties.issue_type) && (
-                <div className="flex-shrink-0" style={{ minWidth: `${keyMinWidth}px` }}>
-                  {issue.project_id && (
-                    <IssueIdentifier
-                      issueId={issueId}
-                      projectId={issue.project_id}
-                      size="xs"
-                      variant="tertiary"
-                      displayProperties={displayProperties}
-                    />
-                  )}
-                </div>
-              )}
-
-              {/* sub-issues chevron */}
+              {/* sub-issues chevron (Dronolab: first, so the tree reads left to right) */}
               <div className="grid size-4 flex-shrink-0 place-items-center">
-                {subIssuesCount > 0 && !isEpic && (
+                {(subIssuesCount > 0 || hasListChildren) && !isEpic && (
                   <button
                     type="button"
                     className="grid size-4 place-items-center rounded-xs text-placeholder hover:text-tertiary"
                     onClick={handleToggleExpand}
+                    aria-label={isExpanded ? "Collapse sub-work items" : "Expand sub-work items"}
                   >
                     <ChevronRightOutline
                       className={cn("size-4", {
@@ -269,14 +320,44 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
                 )}
               </div>
 
+              {/* Dronolab: type badge in a fixed-width slot, then the identifier */}
+              {displayProperties?.key && issue.project_id && (
+                <>
+                  {hasWorkItemTypes && (
+                    <div className="flex w-[60px] flex-shrink-0 items-center">
+                      <WorkItemTypeBadge
+                        projectId={issue.project_id}
+                        typeId={issue.type_id}
+                        parentTypeId={parentIssue?.type_id}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-shrink-0" style={{ minWidth: `${keyMinWidth}px` }}>
+                    <IdentifierText
+                      identifier={`${projectIdentifier}-${issue.sequence_id}`}
+                      size="xs"
+                      variant="tertiary"
+                    />
+                  </div>
+                </>
+              )}
+
               {issue?.tempId !== undefined && (
                 <div className="absolute top-0 left-0 z-[99999] h-full w-full animate-pulse bg-surface-1/20" />
               )}
             </div>
 
             <Tooltip label={issue.name} layout="stacked" align="start" disabled={isCurrentBlockDragging || isMobile}>
-              <p className="cursor-pointer truncate text-body-xs-medium text-primary">{issue.name}</p>
+              <p className="ml-2 cursor-pointer truncate text-body-xs-medium text-primary">{issue.name}</p>
             </Tooltip>
+            {/* Dronolab: parent shown in another group (or not nested here): name it next to the title */}
+            {!isSubIssue && parentIssue && (
+              <Tooltip label={`Parent: ${parentIssue.name}`} layout="stacked" disabled={isCurrentBlockDragging || isMobile}>
+                <span className="ml-2 flex-shrink-0 rounded-sm border border-subtle px-1.5 py-0.5 text-caption-md-regular whitespace-nowrap text-tertiary">
+                  ↳ {getProjectIdentifierById(parentIssue.project_id)}-{parentIssue.sequence_id}
+                </span>
+              </Tooltip>
+            )}
           </div>
           {!issue?.tempId && (
             <div

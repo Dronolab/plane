@@ -25,6 +25,8 @@ import { AuthService } from "@/services/auth.service";
 // local components
 import { FormContainer } from "./common/container";
 import { AuthFormHeader } from "./common/header";
+// Dronolab: school email placeholder
+import { DRONOLAB_EMAIL_PLACEHOLDER } from "@/helpers/dronolab";
 
 type TForgotPasswordFormValues = {
   email: string;
@@ -104,7 +106,7 @@ export const ForgotPasswordForm = observer(function ForgotPasswordForm() {
                 value={value}
                 onChange={onChange}
                 ref={ref}
-                placeholder={t("auth.common.email.placeholder")}
+                placeholder={DRONOLAB_EMAIL_PLACEHOLDER}
                 autoComplete="off"
                 disabled={resendTimerCode > 0}
               />

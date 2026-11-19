@@ -25,7 +25,7 @@ import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // types
 import { HIGHLIGHT_CLASS, getIssueBlockId, isIssueNew } from "../utils";
-import { IssueBlock } from "./block";
+import { IssueBlock, LIST_TREE_INDENT } from "./block";
 import type { TRenderQuickActions } from "./list-view-types";
 
 type Props = {
@@ -46,6 +46,10 @@ type Props = {
   isLastChild?: boolean;
   shouldRenderByDefault?: boolean;
   isEpic?: boolean;
+  /** Dronolab: children of each work item that are in the same list group (see blocks-list.tsx). */
+  listChildrenMap?: Record<string, string[]>;
+  /** Dronolab: for each ancestor level, whether a sibling follows below (draws the tree guide lines). */
+  treeContinuations?: boolean[];
 };
 
 export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
@@ -67,9 +71,21 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
     selectionHelpers,
     shouldRenderByDefault,
     isEpic = false,
+    listChildrenMap,
+    treeContinuations = [],
   } = props;
+  // Dronolab: children shown in this group are nested under their parent, expanded by default
+  const listChildren = (!isEpic && listChildrenMap?.[issueId]) || [];
+  const hasListChildren = listChildren.length > 0;
   // states
-  const [isExpanded, setExpanded] = useState<boolean>(false);
+  const [isExpanded, setExpanded] = useState<boolean>(hasListChildren);
+  const hasAutoExpanded = useRef(hasListChildren);
+  useEffect(() => {
+    if (hasListChildren && !hasAutoExpanded.current) {
+      hasAutoExpanded.current = true;
+      setExpanded(true);
+    }
+  }, [hasListChildren]);
   const [instruction, setInstruction] = useState<"DRAG_OVER" | "DRAG_BELOW" | undefined>(undefined);
   const [isCurrentBlockDragging, setIsCurrentBlockDragging] = useState(false);
   // ref
@@ -130,6 +146,9 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
   if (!issueId || !issuesMap[issueId]?.created_at) return null;
 
   const subIssues = subIssuesStore.subIssuesByIssueId(issueId);
+  // Dronolab: nest the children that are in this group; otherwise fall back to the fetched sub-work items
+  const childIds = hasListChildren ? listChildren : (subIssues ?? []);
+  const renderedChildIds = isExpanded && !isEpic ? childIds.filter((id) => !!issuesMap[id]?.created_at) : [];
   return (
     <div className="relative" ref={issueBlockRef} id={getIssueBlockId(issueId, groupId)}>
       <DropIndicator classNames={"absolute top-0 z-[2]"} isVisible={instruction === "DRAG_OVER"} />
@@ -159,31 +178,34 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
           isCurrentBlockDragging={isParentIssueBeingDragged || isCurrentBlockDragging}
           setIsCurrentBlockDragging={setIsCurrentBlockDragging}
           isEpic={isEpic}
+          hasListChildren={hasListChildren}
+          hasRenderedChildren={renderedChildIds.length > 0}
+          treeContinuations={treeContinuations}
         />
       </RenderIfVisible>
 
-      {isExpanded &&
-        !isEpic &&
-        subIssues?.map((subIssueId) => (
-          <IssueBlockRoot
-            key={`${subIssueId}`}
-            issueId={subIssueId}
-            issuesMap={issuesMap}
-            updateIssue={updateIssue}
-            quickActions={quickActions}
-            canEditProperties={canEditProperties}
-            displayProperties={displayProperties}
-            nestingLevel={nestingLevel + 1}
-            spacingLeft={spacingLeft + 12}
-            containerRef={containerRef}
-            selectionHelpers={selectionHelpers}
-            groupId={groupId}
-            isDragAllowed={isDragAllowed}
-            canDropOverIssue={canDropOverIssue}
-            isParentIssueBeingDragged={isParentIssueBeingDragged || isCurrentBlockDragging}
-            shouldRenderByDefault={isExpanded}
-          />
-        ))}
+      {renderedChildIds.map((subIssueId, index) => (
+        <IssueBlockRoot
+          key={`${subIssueId}`}
+          issueId={subIssueId}
+          issuesMap={issuesMap}
+          updateIssue={updateIssue}
+          quickActions={quickActions}
+          canEditProperties={canEditProperties}
+          displayProperties={displayProperties}
+          nestingLevel={nestingLevel + 1}
+          spacingLeft={spacingLeft + LIST_TREE_INDENT}
+          containerRef={containerRef}
+          selectionHelpers={selectionHelpers}
+          groupId={groupId}
+          isDragAllowed={isDragAllowed}
+          canDropOverIssue={canDropOverIssue}
+          isParentIssueBeingDragged={isParentIssueBeingDragged || isCurrentBlockDragging}
+          shouldRenderByDefault={isExpanded}
+          listChildrenMap={listChildrenMap}
+          treeContinuations={[...treeContinuations, index < renderedChildIds.length - 1]}
+        />
+      ))}
       {isLastChild && <DropIndicator classNames={"absolute z-[2]"} isVisible={instruction === "DRAG_BELOW"} />}
     </div>
   );

@@ -21,12 +21,14 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { CountChip } from "@/components/common/count-chip";
 // constants
 import { HeaderFilters } from "@/components/issues/filters";
+// Dronolab: quick-filter toggles in the project Work items header
+import { MyItemsQuickFilters } from "@/components/issues/my-items-filters";
 // helpers
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useProject } from "@/hooks/store/use-project";
-import { useUserPermissions } from "@/hooks/store/user";
+import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/components/breadcrumbs/common";
@@ -46,6 +48,8 @@ export const IssuesHeader = observer(function IssuesHeader() {
   const { currentProjectDetails, loader } = useProject();
 
   const { toggleCreateIssueModal } = useCommandPalette();
+  // Dronolab: current user for quick-filter toggles
+  const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
   const { isMobile } = usePlatformOS();
 
@@ -109,7 +113,11 @@ export const IssuesHeader = observer(function IssuesHeader() {
         )}
       </Header.LeftItem>
       <Header.RightItem>
-        <div className="hidden gap-2 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
+          {/* Dronolab: quick-filter toggles before the layout switcher */}
+          {workspaceSlug && projectId && currentUser?.id && (
+            <MyItemsQuickFilters workspaceSlug={workspaceSlug.toString()} projectId={projectId.toString()} />
+          )}
           <HeaderFilters
             projectId={projectId}
             currentProjectDetails={currentProjectDetails}

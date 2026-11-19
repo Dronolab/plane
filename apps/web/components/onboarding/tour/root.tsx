@@ -11,9 +11,7 @@ import { Button } from "@makeplane/propel/components/button";
 import { PlaneLockup } from "@plane/blocks/icons";
 import { CloseOutline } from "@makeplane/propel/icons";
 // assets
-import CyclesTour from "@/app/assets/onboarding/cycles.webp?url";
 import IssuesTour from "@/app/assets/onboarding/issues.webp?url";
-import ModulesTour from "@/app/assets/onboarding/modules.webp?url";
 import PagesTour from "@/app/assets/onboarding/pages.webp?url";
 import ViewsTour from "@/app/assets/onboarding/views.webp?url";
 // hooks
@@ -26,7 +24,8 @@ export type TOnboardingTourProps = {
   onComplete: () => void;
 };
 
-export type TTourSteps = "welcome" | "work-items" | "cycles" | "modules" | "views" | "pages";
+// Dronolab: no cycles/modules
+export type TTourSteps = "welcome" | "work-items" | "views" | "pages";
 
 const TOUR_STEPS: {
   key: TTourSteps;
@@ -42,32 +41,16 @@ const TOUR_STEPS: {
     description:
       "The work item is the building block of the Plane. Most concepts in Plane are either associated with work items and their properties.",
     image: IssuesTour,
-    nextStep: "cycles",
-  },
-  {
-    key: "cycles",
-    title: "Move with cycles",
-    description:
-      "Cycles help you and your team to progress faster, similar to the sprints commonly used in agile development.",
-    image: CyclesTour,
-    prevStep: "work-items",
-    nextStep: "modules",
-  },
-  {
-    key: "modules",
-    title: "Break into modules",
-    description: "Modules break your big thing into Projects or Features, to help you organize better.",
-    image: ModulesTour,
-    prevStep: "cycles",
     nextStep: "views",
   },
+  // Dronolab: no cycles/modules
   {
     key: "views",
     title: "Views",
     description:
       "Create custom filters to display only the work items that matter to you. Save and share your filters in just a few clicks.",
     image: ViewsTour,
-    prevStep: "modules",
+    prevStep: "work-items",
     nextStep: "pages",
   },
   {
