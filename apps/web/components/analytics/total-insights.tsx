@@ -77,18 +77,21 @@ const TotalInsights = observer(function TotalInsights({
         isPeekView
       )
   );
+  // Dronolab: no cycles/modules
+  const insightFields = ANALYTICS_INSIGHTS_FIELDS[analyticsType]?.filter((item) => item.key !== "total_cycles");
+
   return (
     <div
       className={cn(
         "grid grid-cols-1 gap-8 sm:grid-cols-2 md:gap-10",
         !peekView
-          ? ANALYTICS_INSIGHTS_FIELDS[analyticsType]?.length % 5 === 0
+          ? insightFields?.length % 5 === 0
             ? "gap-10 lg:grid-cols-5"
             : "gap-8 lg:grid-cols-4"
           : "grid-cols-2"
       )}
     >
-      {ANALYTICS_INSIGHTS_FIELDS[analyticsType]?.map((item) => (
+      {insightFields?.map((item) => (
         <InsightCard
           key={`${analyticsType}-${item.key}`}
           isLoading={isLoading}

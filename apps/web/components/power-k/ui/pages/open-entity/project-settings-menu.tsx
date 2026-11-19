@@ -29,6 +29,9 @@ export const PowerKOpenProjectSettingsMenu = observer(function PowerKOpenProject
   // derived values
   const settingsList = Object.values(PROJECT_SETTINGS).filter(
     (setting) =>
+      // Dronolab: no cycles/modules
+      setting.key !== "features_cycles" &&
+      setting.key !== "features_modules" &&
       context.params.workspaceSlug &&
       context.params.projectId &&
       allowPermissions(

@@ -36,10 +36,17 @@ from plane.app.views import (
     WorkspaceHomePreferenceViewSet,
     WorkspaceStickyViewSet,
     WorkspaceUserPreferenceViewSet,
+    WorkspaceTransferOwnershipEndpoint,
 )
 
 
 urlpatterns = [
+    # Dronolab: hand a workspace over to another admin
+    path(
+        "workspaces/<str:slug>/transfer-ownership/",
+        WorkspaceTransferOwnershipEndpoint.as_view(),
+        name="workspace-transfer-ownership",
+    ),
     path(
         "workspace-slug-check/",
         WorkSpaceAvailabilityCheckEndpoint.as_view(),

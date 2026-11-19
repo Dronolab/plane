@@ -7,9 +7,8 @@
 // components
 import type { TPowerKCommandConfig, TPowerKContextType, TPowerKPageType } from "@/components/power-k/core/types";
 // local imports
-import { usePowerKCycleContextBasedActions } from "./cycle/commands";
+// Dronolab: no cycles/modules
 import { PowerKModuleContextBasedPages } from "./module";
-import { usePowerKModuleContextBasedActions } from "./module/commands";
 import { usePowerKPageContextBasedActions } from "./page/commands";
 import { PowerKWorkItemContextBasedPages } from "./work-item";
 import { usePowerKWorkItemContextBasedCommands } from "./work-item/commands";
@@ -37,9 +36,8 @@ export function PowerKContextBasedPagesList(props: ContextBasedActionsProps) {
 
 export const usePowerKContextBasedActions = (): TPowerKCommandConfig[] => {
   const workItemCommands = usePowerKWorkItemContextBasedCommands();
-  const cycleCommands = usePowerKCycleContextBasedActions();
-  const moduleCommands = usePowerKModuleContextBasedActions();
   const pageCommands = usePowerKPageContextBasedActions();
 
-  return [...workItemCommands, ...cycleCommands, ...moduleCommands, ...pageCommands];
+  // Dronolab: no cycles/modules
+  return [...workItemCommands, ...pageCommands];
 };

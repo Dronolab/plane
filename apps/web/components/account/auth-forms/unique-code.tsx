@@ -17,6 +17,8 @@ import { EAuthModes } from "@/helpers/authentication.helper";
 import useTimer from "@/hooks/use-timer";
 // services
 import { AuthService } from "@/services/auth.service";
+// Dronolab: school email placeholder
+import { DRONOLAB_EMAIL_PLACEHOLDER } from "@/helpers/dronolab";
 
 // services
 const authService = new AuthService();
@@ -103,7 +105,7 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
         type="email"
         value={uniqueCodeFormData.email}
         onChange={(e) => handleFormChange("email", e.target.value)}
-        placeholder={t("auth.common.email.placeholder")}
+        placeholder={DRONOLAB_EMAIL_PLACEHOLDER}
         autoComplete="off"
         disabled
         endIcon={

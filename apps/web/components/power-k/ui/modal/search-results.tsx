@@ -31,6 +31,9 @@ export const PowerKModalSearchResults = observer(function PowerKModalSearchResul
   return (
     <>
       {Object.keys(results.results).map((key) => {
+        // Dronolab: no cycles/modules
+        if (key === "cycle" || key === "module") return null;
+
         const section = results.results[key as keyof typeof results.results];
         const currentSection = POWER_K_SEARCH_RESULTS_GROUPS_MAP[key as keyof typeof POWER_K_SEARCH_RESULTS_GROUPS_MAP];
 

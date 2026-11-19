@@ -16,6 +16,8 @@ import {
   ParentOutline,
   UpdatedAtOutline,
   UserOutline,
+  // Dronolab: icon for Type property row
+  WorkItemsOutline,
 } from "@makeplane/propel/icons";
 import { useTranslation } from "@plane/i18n";
 import { calculateTimeAgo, cn, renderFormattedDate } from "@plane/utils";
@@ -23,6 +25,8 @@ import { calculateTimeAgo, cn, renderFormattedDate } from "@plane/utils";
 import { SidebarPropertyListItem } from "@/components/common/layout/sidebar/property-list-item";
 import { EstimateSelect } from "@/components/dropdowns/estimate/estimate-select";
 import { IssueParentSelectRoot } from "@/components/issues/parent-select-root";
+// Dronolab: work item type badge and types hook
+import { WorkItemTypeBadge, useWorkItemTypes } from "@/components/issues/work-item-type-badge";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -64,9 +68,18 @@ export const IssueDetailSidebarSections = observer(function IssueDetailSidebarSe
     issue: { getIssueById },
   } = useIssueDetail();
   const { getUserDetails } = useMember();
+  // Dronolab: fetch project work item types for the Type property row
+  const workItemTypes = useWorkItemTypes(workspaceSlug, projectId);
   // derived values
   const issue = getIssueById(issueId);
   if (!issue) return null;
+
+  // Dronolab: determine if this work item is an Epic and list selectable non-epic types
+  const currentWorkItemType = workItemTypes?.find((type) => type.id === issue.type_id);
+  const isEpicType = !!currentWorkItemType?.is_epic;
+  const selectableWorkItemTypes = (workItemTypes ?? [])
+    .filter((type) => !type.is_epic)
+    .sort((a, b) => a.level - b.level);
 
   const projectDetails = getProjectById(issue.project_id);
   const createdByDetails = getUserDetails(issue.created_by);
@@ -111,6 +124,38 @@ export const IssueDetailSidebarSections = observer(function IssueDetailSidebarSe
 
       <div className={cn("flex flex-col gap-5", { "opacity-60": disabled })}>
         <IssueDetailSidebarGroup label={t("common.details")}>
+          {/* Dronolab: Type property row (Epic read-only badge; Story/Task selectable) */}
+          <SidebarPropertyListItem icon={WorkItemsOutline} label="Type">
+            {isEpicType ? (
+              <div className="flex h-8 items-center px-2">
+                <WorkItemTypeBadge projectId={projectId} typeId={issue.type_id} />
+              </div>
+            ) : (
+              <select
+                aria-label="Type"
+                value={issue.type_id ?? ""}
+                disabled={disabled}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    issueOperations.update(workspaceSlug, projectId, issueId, { type_id: e.target.value });
+                  }
+                }}
+                className="h-8 w-full rounded-sm border border-subtle bg-transparent px-2 text-body-xs-regular text-primary outline-none hover:bg-layer-transparent-hover focus:border-accent-strong disabled:cursor-not-allowed"
+              >
+                {issue.type_id == null && (
+                  <option value="" className="bg-surface-1 text-primary">
+                    —
+                  </option>
+                )}
+                {selectableWorkItemTypes.map((type) => (
+                  <option key={type.id} value={type.id} className="bg-surface-1 text-primary">
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </SidebarPropertyListItem>
+
           <SidebarPropertyListItem icon={ParentOutline} label={t("common.parent")}>
             <IssueParentSelectRoot
               className="w-full grow"

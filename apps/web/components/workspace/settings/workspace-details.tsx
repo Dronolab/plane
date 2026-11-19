@@ -29,6 +29,8 @@ import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane web components
 import { DeleteWorkspaceSection } from "@/components/workspace/delete-workspace-section";
+// Dronolab: workspace ownership transfer section
+import { WorkspaceTransferOwnership } from "@/components/workspace/settings/transfer-ownership";
 
 const defaultValues: Partial<IWorkspace> = {
   name: "",
@@ -305,7 +307,9 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
         )}
       </div>
       {isAdmin && (
-        <div className="mt-10">
+        <div className="mt-10 flex flex-col gap-4">
+          {/* Dronolab: workspace ownership transfer section */}
+          <WorkspaceTransferOwnership workspace={currentWorkspace} />
           <DeleteWorkspaceSection workspace={currentWorkspace} />
         </div>
       )}

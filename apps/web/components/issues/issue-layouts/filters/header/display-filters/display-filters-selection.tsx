@@ -50,13 +50,8 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
   const isDisplayFilterEnabled = (displayFilter: keyof IIssueDisplayFilterOptions) =>
     Object.keys(layoutDisplayFiltersOptions?.display_filters ?? {}).includes(displayFilter);
 
-  const computedIgnoreGroupedFilters: Partial<TIssueGroupByOptions>[] = [];
-  if (cycleViewDisabled) {
-    ignoreGroupedFilters.push("cycle");
-  }
-  if (moduleViewDisabled) {
-    ignoreGroupedFilters.push("module");
-  }
+  // Dronolab: no cycles/modules
+  const computedIgnoreGroupedFilters: Partial<TIssueGroupByOptions>[] = ["cycle", "module"];
 
   // the menu has three sections; a separator only shows with a section on both sides of it
   const showDisplayProperties =

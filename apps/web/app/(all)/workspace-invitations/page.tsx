@@ -142,14 +142,14 @@ function WorkspaceInvitationPage() {
                       size="md"
                       href={DRONOLAB_DISCORD_URL}
                       external
-                      label="Rejoindre le Discord Dronolab"
+                      label="Join the Dronolab Discord"
                     />
                     <AnchorButton
                       variant="secondary"
                       size="md"
                       href={DRONOLAB_GUIDE_URL}
                       external
-                      label="Guide d'intégration Dronolab"
+                      label="Dronolab onboarding guide"
                     />
                     <AnchorButton
                       variant="secondary"

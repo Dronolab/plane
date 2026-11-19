@@ -194,6 +194,11 @@ class Project(ChangeTrackerMixin, BaseModel):
         from plane.db.models import Workspace
 
         self.identifier = self.identifier.strip().upper()
+        # Dronolab: the club doesn't use Cycles or Modules; keep them off whatever the request says
+        self.cycle_view = False
+        self.module_view = False
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = list(set(kwargs["update_fields"]) | {"cycle_view", "module_view"})
         is_creating = self._state.adding
 
         if is_creating and not self.is_timezone_provided:

@@ -22,6 +22,8 @@ import { getPasswordStrength } from "@plane/utils";
 import { EAuthModes, EAuthSteps } from "@/helpers/authentication.helper";
 // services
 import { AuthService } from "@/services/auth.service";
+// Dronolab: school email placeholder
+import { DRONOLAB_EMAIL_PLACEHOLDER } from "@/helpers/dronolab";
 
 type Props = {
   email: string;
@@ -195,7 +197,7 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
           type="email"
           value={passwordFormData.email}
           onChange={(e) => handleFormChange("email", e.target.value)}
-          placeholder={t("auth.common.email.placeholder")}
+          placeholder={DRONOLAB_EMAIL_PLACEHOLDER}
           disabled
           endIcon={
             passwordFormData.email.length > 0 && (

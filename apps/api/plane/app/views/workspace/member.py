@@ -104,6 +104,13 @@ class WorkSpaceMemberViewSet(BaseViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Dronolab: the owner stays an admin until ownership is transferred
+        if workspace_member.workspace.owner_id == workspace_member.member_id:
+            return Response(
+                {"error": "The workspace owner's role can't be changed. Transfer ownership first."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # SECURITY: only ``role`` is writable here. Passing other keys through let an
         # admin move a member row into another workspace via ``workspace``.
         if not isinstance(request.data, dict) or set(request.data) != {"role"}:
@@ -162,6 +169,13 @@ class WorkSpaceMemberViewSet(BaseViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Dronolab: the owner can't be removed until ownership is transferred
+        if workspace_member.workspace.owner_id == workspace_member.member_id:
+            return Response(
+                {"error": "The workspace owner can't be removed. Transfer ownership first."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if is_sole_admin_of_any_project(slug, workspace_member.member_id):
             return Response(
                 {
@@ -190,6 +204,13 @@ class WorkSpaceMemberViewSet(BaseViewSet):
     @invalidate_cache(path="api/users/me/workspaces/", user=False, multiple=True)
     def leave(self, request, slug):
         workspace_member = WorkspaceMember.objects.get(workspace__slug=slug, member=request.user, is_active=True)
+
+        # Dronolab: the owner can't leave until ownership is transferred
+        if workspace_member.workspace.owner_id == request.user.id:
+            return Response(
+                {"error": "You own this workspace. Transfer ownership to another admin before leaving."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Check if the leaving user is the only admin of the workspace
         if (

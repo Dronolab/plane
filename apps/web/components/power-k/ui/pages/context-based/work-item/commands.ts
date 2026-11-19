@@ -8,13 +8,11 @@ import { useCallback } from "react";
 import { useParams } from "next/navigation";
 import {
   CopyOutline,
-  CyclesOutline,
   DeleteOutline,
   EstimateOutline,
   LabelsOutline,
   LinkOutline,
   MembersOutline,
-  ModuleOutline,
   PriorityOutline,
   StateOutline,
   SubscribeOutline,
@@ -27,7 +25,7 @@ import {
 import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { setToast } from "@plane/blocks/toast";
-import type { ICycle, IIssueLabel, IModule, TIssue, TIssuePriorities } from "@plane/types";
+import type { IIssueLabel, TIssue, TIssuePriorities } from "@plane/types";
 import { EIssueServiceType, EUserPermissions } from "@plane/types";
 import { copyTextToClipboard } from "@plane/utils";
 // components
@@ -51,16 +49,11 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const { getProjectById } = useProject();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const {
-    issue: { getIssueById, getIssueIdByIdentifier, addCycleToIssue, removeIssueFromCycle, changeModulesInIssue },
+    issue: { getIssueById, getIssueIdByIdentifier },
     subscription: { getSubscriptionByIssueId, createSubscription, removeSubscription },
     updateIssue,
   } = useIssueDetail(EIssueServiceType.ISSUES);
   const {
-    issue: {
-      addCycleToIssue: addCycleToEpic,
-      removeIssueFromCycle: removeEpicFromCycle,
-      changeModulesInIssue: changeModulesInEpic,
-    },
     subscription: { createSubscription: createEpicSubscription, removeSubscription: removeEpicSubscription },
     updateIssue: updateEpic,
   } = useIssueDetail(EIssueServiceType.EPICS);
@@ -295,78 +288,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       isVisible: () => isEstimateEnabled && isEditingAllowed,
       closeOnSelect: true,
     },
-    {
-      id: "add_work_item_to_cycle",
-      i18n_title: "power_k.contextual_actions.work_item.add_to_cycle",
-      icon: CyclesOutline,
-      group: "contextual",
-      contextType: "work-item",
-      type: "change-page",
-      page: "update-work-item-cycle",
-      onSelect: (data) => {
-        const cycleId = (data as ICycle)?.id;
-        if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
-        if (entityDetails.cycle_id === cycleId) return;
-        // handlers
-        const addCycleToEntity = entityDetails.is_epic ? addCycleToEpic : addCycleToIssue;
-        const removeCycleFromEntity = entityDetails.is_epic ? removeEpicFromCycle : removeIssueFromCycle;
-
-        try {
-          if (cycleId) {
-            addCycleToEntity(workspaceSlug.toString(), entityDetails.project_id, cycleId, entityDetails.id);
-          } else {
-            removeCycleFromEntity(
-              workspaceSlug.toString(),
-              entityDetails.project_id,
-              entityDetails.cycle_id ?? "",
-              entityDetails.id
-            );
-          }
-        } catch {
-          setToast({
-            type: "error",
-            title: "Error!",
-            message: `${entityDetails.is_epic ? "Epic" : "Work item"} could not be updated. Please try again.`,
-          });
-        }
-      },
-      modifierShortcut: "shift+c",
-      isEnabled: () => Boolean(projectDetails?.cycle_view && isEditingAllowed),
-      isVisible: () => Boolean(projectDetails?.cycle_view && isEditingAllowed),
-      closeOnSelect: true,
-    },
-    {
-      id: "add_work_item_to_modules",
-      i18n_title: "power_k.contextual_actions.work_item.add_to_modules",
-      icon: ModuleOutline,
-      group: "contextual",
-      contextType: "work-item",
-      type: "change-page",
-      page: "update-work-item-module",
-      onSelect: (data) => {
-        const moduleId = (data as IModule)?.id;
-        if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
-        // handlers
-        const changeModulesInEntity = entityDetails.is_epic ? changeModulesInEpic : changeModulesInIssue;
-        try {
-          if (entityDetails.module_ids?.includes(moduleId)) {
-            changeModulesInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [moduleId]);
-          } else {
-            changeModulesInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [moduleId], []);
-          }
-        } catch {
-          setToast({
-            type: "error",
-            title: "Error!",
-            message: `${entityDetails.is_epic ? "Epic" : "Work item"} could not be updated. Please try again.`,
-          });
-        }
-      },
-      modifierShortcut: "shift+m",
-      isEnabled: () => Boolean(projectDetails?.module_view && isEditingAllowed),
-      isVisible: () => Boolean(projectDetails?.module_view && isEditingAllowed),
-      closeOnSelect: false,
-    },
+    // Dronolab: no cycles/modules
     {
       id: "add_work_item_labels",
       i18n_title: "power_k.contextual_actions.work_item.add_labels",

@@ -8,20 +8,18 @@ import {
   ActivityOutline,
   ArchiveOutline,
   BarOutline,
-  CyclesOutline,
   DocumentationOutline,
   EditOutline,
   HomeOutline,
   InboxOutline,
   IntakeOutline,
-  ModuleOutline,
   ProjectsOutline,
   SettingsOutline,
   WorkItemsOutline,
 } from "@makeplane/propel/icons";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
-import type { ICycle, IModule, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
+import type { IPartialProject, IProjectView, IWorkspace } from "@plane/types";
 import { EUserProjectRoles, EUserWorkspaceRoles } from "@plane/types";
 // components
 import type { TPowerKCommandConfig, TPowerKContext } from "@/components/power-k/core/types";
@@ -48,10 +46,7 @@ export type TPowerKNavigationCommandKeys =
   | "open_workspace_setting"
   | "nav_workspace_settings"
   | "nav_project_work_items"
-  | "open_project_cycle"
-  | "nav_project_cycles"
-  | "open_project_module"
-  | "nav_project_modules"
+  // Dronolab: no cycles/modules
   | "open_project_view"
   | "nav_project_views"
   | "nav_project_pages"
@@ -311,94 +306,7 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
       isVisible: (ctx) => baseProjectConditions(ctx),
       closeOnSelect: true,
     },
-    open_project_cycle: {
-      id: "open_project_cycle",
-      type: "change-page",
-      group: "navigation",
-      i18n_title: "power_k.navigation_actions.open_project_cycle",
-      icon: CyclesOutline,
-      keySequence: "oc",
-      page: "open-project-cycle",
-      onSelect: (data, ctx) => {
-        const cycleDetails = data as ICycle;
-        handlePowerKNavigate(ctx, [
-          ctx.params.workspaceSlug?.toString(),
-          "projects",
-          ctx.params.projectId?.toString(),
-          "cycles",
-          cycleDetails.id,
-        ]);
-      },
-      isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
-      isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
-      closeOnSelect: true,
-    },
-    nav_project_cycles: {
-      id: "nav_project_cycles",
-      type: "action",
-      group: "navigation",
-      i18n_title: "power_k.navigation_actions.nav_project_cycles",
-      icon: CyclesOutline,
-      keySequence: "gc",
-      action: (ctx) =>
-        handlePowerKNavigate(ctx, [
-          ctx.params.workspaceSlug?.toString(),
-          "projects",
-          ctx.params.projectId?.toString(),
-          "cycles",
-        ]),
-      isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
-      isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
-      closeOnSelect: true,
-    },
-    open_project_module: {
-      id: "open_project_module",
-      type: "change-page",
-      group: "navigation",
-      i18n_title: "power_k.navigation_actions.open_project_module",
-      icon: ModuleOutline,
-      keySequence: "om",
-      page: "open-project-module",
-      onSelect: (data, ctx) => {
-        const moduleDetails = data as IModule;
-        handlePowerKNavigate(ctx, [
-          ctx.params.workspaceSlug?.toString(),
-          "projects",
-          ctx.params.projectId?.toString(),
-          "modules",
-          moduleDetails.id,
-        ]);
-      },
-      isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
-      isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
-      closeOnSelect: true,
-    },
-    nav_project_modules: {
-      id: "nav_project_modules",
-      type: "action",
-      group: "navigation",
-      i18n_title: "power_k.navigation_actions.nav_project_modules",
-      icon: ModuleOutline,
-      keySequence: "gm",
-      action: (ctx) =>
-        handlePowerKNavigate(ctx, [
-          ctx.params.workspaceSlug?.toString(),
-          "projects",
-          ctx.params.projectId?.toString(),
-          "modules",
-        ]),
-      isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
-      isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
-      closeOnSelect: true,
-    },
+    // Dronolab: no cycles/modules
     open_project_view: {
       id: "open_project_view",
       type: "change-page",

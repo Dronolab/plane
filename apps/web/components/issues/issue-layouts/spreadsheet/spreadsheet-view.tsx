@@ -56,7 +56,6 @@ export const SpreadsheetView = observer(function SpreadsheetView(props: Props) {
     disableIssueCreation,
     canLoadMoreIssues,
     loadMoreIssues,
-    isWorkspaceLevel = false,
     isEpic = false,
   } = props;
   // refs
@@ -69,13 +68,11 @@ export const SpreadsheetView = observer(function SpreadsheetView(props: Props) {
 
   const isEstimateEnabled: boolean = currentProjectDetails?.estimate !== null;
 
-  const spreadsheetColumnsList = isWorkspaceLevel
-    ? SPREADSHEET_PROPERTY_LIST
-    : SPREADSHEET_PROPERTY_LIST.filter((property) => {
-        if (property === "cycle" && !currentProjectDetails?.cycle_view) return false;
-        if (property === "modules" && !currentProjectDetails?.module_view) return false;
-        return true;
-      });
+  const spreadsheetColumnsList = SPREADSHEET_PROPERTY_LIST.filter((property) => {
+    // Dronolab: no cycles/modules
+    if (property === "cycle" || property === "modules") return false;
+    return true;
+  });
 
   if (!issueIds || issueIds.length === 0) return <></>;
   return (

@@ -31,6 +31,11 @@ from plane.app.views import (
     WorkItemDescriptionVersionEndpoint,
     IssueMetaEndpoint,
     IssueDetailIdentifierEndpoint,
+    EpicViewSet,
+    EpicPaginatedViewSet,
+    EpicDetailEndpoint,
+    EpicProgressEndpoint,
+    WorkItemTypesEndpoint,
 )
 
 urlpatterns = [
@@ -282,5 +287,162 @@ urlpatterns = [
         "workspaces/<str:slug>/work-items/<str:project_identifier>-<str:issue_identifier>/",
         IssueDetailIdentifierEndpoint.as_view(),
         name="issue-detail-identifier",
+    ),
+    # Dronolab: epics
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/work-item-types/",
+        WorkItemTypesEndpoint.as_view(),
+        name="project-work-item-types",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/",
+        EpicViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-epic",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics-detail/",
+        EpicDetailEndpoint.as_view(),
+        name="project-epic-detail",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/v2/epics/",
+        EpicPaginatedViewSet.as_view({"get": "list"}),
+        name="project-epics-paginated",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:pk>/",
+        EpicViewSet.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy",
+            }
+        ),
+        name="project-epic",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:epic_id>/progress/",
+        EpicProgressEndpoint.as_view(),
+        name="project-epic-progress",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/sub-issues/",
+        SubIssuesEndpoint.as_view(),
+        name="sub-epics",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-links/",
+        IssueLinkViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-epic-links",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-links/<uuid:pk>/",
+        IssueLinkViewSet.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy",
+            }
+        ),
+        name="project-epic-links",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-attachments/",
+        IssueAttachmentEndpoint.as_view(),
+        name="project-epic-attachments",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-attachments/<uuid:pk>/",
+        IssueAttachmentEndpoint.as_view(),
+        name="project-epic-attachments",
+    ),
+    path(
+        "assets/v2/workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/attachments/",
+        IssueAttachmentV2Endpoint.as_view(),
+        name="project-epic-attachments",
+    ),
+    path(
+        "assets/v2/workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/attachments/<uuid:pk>/",
+        IssueAttachmentV2Endpoint.as_view(),
+        name="project-epic-attachments",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/history/",
+        IssueActivityEndpoint.as_view(),
+        name="project-epic-history",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/comments/",
+        IssueCommentViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-epic-comment",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/comments/<uuid:pk>/",
+        IssueCommentViewSet.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy",
+            }
+        ),
+        name="project-epic-comment",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-subscribers/",
+        IssueSubscriberViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-epic-subscribers",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-subscribers/<uuid:subscriber_id>/",
+        IssueSubscriberViewSet.as_view({"delete": "destroy"}),
+        name="project-epic-subscribers",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/subscribe/",
+        IssueSubscriberViewSet.as_view({"get": "subscription_status", "post": "subscribe", "delete": "unsubscribe"}),
+        name="project-epic-subscribers",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/reactions/",
+        IssueReactionViewSet.as_view({"get": "list", "post": "create"}),
+        name="project-epic-reactions",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/reactions/<str:reaction_code>/",
+        IssueReactionViewSet.as_view({"delete": "destroy"}),
+        name="project-epic-reactions",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:pk>/archive/",
+        IssueArchiveViewSet.as_view({"get": "retrieve", "post": "archive", "delete": "unarchive"}),
+        name="project-epic-archive-unarchive",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/issue-relation/",
+        IssueRelationViewSet.as_view({"get": "list", "post": "create"}),
+        name="epic-relation",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/remove-relation/",
+        IssueRelationViewSet.as_view({"post": "remove_relation"}),
+        name="epic-relation",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/versions/",
+        IssueVersionEndpoint.as_view(),
+        name="epic-versions",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/versions/<uuid:pk>/",
+        IssueVersionEndpoint.as_view(),
+        name="epic-versions",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/epics/<uuid:issue_id>/meta/",
+        IssueMetaEndpoint.as_view(),
+        name="epic-meta",
     ),
 ]

@@ -5,7 +5,7 @@
  */
 
 // plane imports
-import { CyclesOutline, ModuleOutline, PagesOutline, ViewsOutline, WorkItemsOutline } from "@makeplane/propel/icons";
+import { PagesOutline, ViewsOutline, WorkItemsOutline } from "@makeplane/propel/icons";
 import type { ISvgIcons } from "@plane/blocks/icons";
 // types
 import type { TTourSteps } from "./root";
@@ -20,16 +20,7 @@ const sidebarOptions: {
     label: "Work items",
     Icon: WorkItemsOutline,
   },
-  {
-    key: "cycles",
-    label: "Cycles",
-    Icon: CyclesOutline,
-  },
-  {
-    key: "modules",
-    label: "Modules",
-    Icon: ModuleOutline,
-  },
+  // Dronolab: no cycles/modules
   {
     key: "views",
     label: "Views",

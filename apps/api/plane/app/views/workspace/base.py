@@ -85,7 +85,8 @@ class WorkSpaceViewSet(BaseViewSet):
                 [
                     {
                         "key": "DISABLE_WORKSPACE_CREATION",
-                        "default": os.environ.get("DISABLE_WORKSPACE_CREATION", "0"),
+                        # Dronolab: the two built-in workspaces are the only ones, so creation is off by default
+                        "default": os.environ.get("DISABLE_WORKSPACE_CREATION", "1"),
                     }
                 ]
             )

@@ -25,26 +25,20 @@ type Props = {
 };
 
 export const FilterDisplayProperties = observer(function FilterDisplayProperties(props: Props) {
-  const {
-    displayProperties,
-    displayPropertiesToRender,
-    handleUpdate,
-    cycleViewDisabled = false,
-    moduleViewDisabled = false,
-    isEpic = false,
-  } = props;
+  const { displayProperties, displayPropertiesToRender, handleUpdate, isEpic = false } = props;
   // hooks
   const { t } = useTranslation();
 
-  // Filter out "cycle" and "module" keys if cycleViewDisabled or moduleViewDisabled is true
+  // Filter out "cycle" and "module" keys
   // Also filter out display properties that should not be rendered
   const filteredDisplayProperties = ISSUE_DISPLAY_PROPERTIES.filter((property) => {
     if (!displayPropertiesToRender.includes(property.key)) return false;
     switch (property.key) {
+      // Dronolab: no cycles/modules
       case "cycle":
-        return !cycleViewDisabled;
+        return false;
       case "modules":
-        return !moduleViewDisabled;
+        return false;
       default:
         return true;
     }

@@ -12,7 +12,7 @@ import { CalendarOutline, PreferencesOutline } from "@makeplane/propel/icons";
 // plane package imports
 import { ANALYTICS_X_AXIS_VALUES, ANALYTICS_Y_AXIS_VALUES } from "@plane/constants";
 import type { IAnalyticsParams } from "@plane/types";
-import { ChartYAxisMetric } from "@plane/types";
+import { ChartXAxisProperty, ChartYAxisMetric } from "@plane/types";
 import { cn } from "@plane/utils";
 // plane web components
 import { SelectXAxis } from "./select-x-axis";
@@ -29,13 +29,21 @@ type Props = {
 
 export const AnalyticsSelectParams = observer(function AnalyticsSelectParams(props: Props) {
   const { control, params, classNames, isEpic } = props;
+  // Dronolab: no cycles/modules
+  const availableXAxisValues = useMemo(
+    () =>
+      ANALYTICS_X_AXIS_VALUES.filter(
+        (option) => option.value !== ChartXAxisProperty.CYCLES && option.value !== ChartXAxisProperty.MODULES
+      ),
+    []
+  );
   const xAxisOptions = useMemo(
-    () => ANALYTICS_X_AXIS_VALUES.filter((option) => option.value !== params.group_by),
-    [params.group_by]
+    () => availableXAxisValues.filter((option) => option.value !== params.group_by),
+    [availableXAxisValues, params.group_by]
   );
   const groupByOptions = useMemo(
-    () => ANALYTICS_X_AXIS_VALUES.filter((option) => option.value !== params.x_axis),
-    [params.x_axis]
+    () => availableXAxisValues.filter((option) => option.value !== params.x_axis),
+    [availableXAxisValues, params.x_axis]
   );
 
   return (

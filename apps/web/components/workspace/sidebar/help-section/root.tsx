@@ -53,22 +53,22 @@ export const HelpMenuRoot = observer(function HelpMenuRoot() {
           {/* Dronolab: club links in place of Plane's docs, sales, changelog and forum */}
           <MenuItem
             icon={<Icon icon={PagesOutline} tint="secondary" />}
-            label="Guide Dronolab"
+            label="Dronolab guide"
             onClick={() => window.open(DRONOLAB_GUIDE_URL, "_blank", "noopener,noreferrer")}
           />
           <MenuItem
             icon={<Icon icon={UserAltOutline} tint="secondary" />}
-            label="Discord Dronolab"
+            label="Dronolab Discord"
             onClick={() => window.open(DRONOLAB_DISCORD_URL, "_blank", "noopener,noreferrer")}
           />
           <MenuItem
             icon={<Icon icon={MailOutline} tint="secondary" />}
-            label="Contacter Dronolab"
+            label="Contact Dronolab"
             onClick={() => window.open(`mailto:${DRONOLAB_EMAIL}`, "_self")}
           />
           <MenuItem
             icon={<Icon icon={GlobeOutline} tint="secondary" />}
-            label="Site web Dronolab"
+            label="Dronolab website"
             onClick={() => window.open(DRONOLAB_WEBSITE_URL, "_blank", "noopener,noreferrer")}
           />
           <MenuSeparator />

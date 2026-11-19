@@ -69,7 +69,7 @@ class InstanceEndpoint(BaseAPIView):
                 },
                 {
                     "key": "DISABLE_WORKSPACE_CREATION",
-                    "default": os.environ.get("DISABLE_WORKSPACE_CREATION", "0"),
+                    "default": os.environ.get("DISABLE_WORKSPACE_CREATION", "1"),  # Dronolab: off by default
                 },
                 {
                     "key": "IS_GOOGLE_ENABLED",
