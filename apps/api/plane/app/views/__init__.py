@@ -128,6 +128,14 @@ from .issue.base import (
     IssueDetailIdentifierEndpoint,
 )
 
+# Dronolab: epics
+from .issue.epic import (
+    EpicViewSet,
+    EpicPaginatedViewSet,
+    EpicDetailEndpoint,
+    EpicProgressEndpoint,
+)
+
 from .issue.activity import IssueActivityEndpoint
 
 from .issue.archive import IssueArchiveViewSet, BulkArchiveIssuesEndpoint

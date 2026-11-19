@@ -43,11 +43,13 @@ from plane.db.models import (
     IssueDescriptionVersion,
     ProjectMember,
     EstimatePoint,
+    ProjectIssueType,
 )
 from plane.utils.content_validator import (
     validate_html_content,
     validate_binary_data,
 )
+from plane.utils.work_item_types import nesting_error
 
 
 class IssueFlatSerializer(BaseSerializer):
@@ -195,6 +197,20 @@ class IssueCreateSerializer(BaseSerializer):
             ).exists()
         ):
             raise serializers.ValidationError("Parent is not valid issue_id please pass a valid issue_id")
+
+        # Dronolab: Epic > Story > Task nesting, and Task as the default type once a project has types.
+        if self.instance is None and not attrs.get("type"):
+            default_type = ProjectIssueType.objects.filter(
+                project_id=self.context.get("project_id"), is_default=True
+            ).first()
+            if default_type:
+                attrs["type"] = default_type.issue_type
+        if "parent" in attrs or "type" in attrs:
+            child_type = attrs["type"] if "type" in attrs else getattr(self.instance, "type", None)
+            parent = attrs["parent"] if "parent" in attrs else getattr(self.instance, "parent", None)
+            error = nesting_error(child_type, parent)
+            if error:
+                raise serializers.ValidationError({"parent_id": error})
 
         if (
             attrs.get("estimate_point")

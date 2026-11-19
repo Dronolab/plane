@@ -74,8 +74,14 @@ from plane.utils.issue_filters import issue_filters
 from plane.utils.order_queryset import order_issue_queryset
 from plane.utils.paginator import GroupedOffsetPaginator, SubGroupedOffsetPaginator
 from plane.utils.timezone_converter import user_timezone_converter
+from plane.utils.work_item_types import epic_q, non_epic_q
 
 from .. import BaseAPIView, BaseViewSet
+
+
+def scope_epics(queryset, epics):
+    # Dronolab: work item views leave epics out; the epic views (epics=True) see only epics.
+    return queryset.filter(epic_q() if epics else non_epic_q())
 
 
 class IssueListEndpoint(BaseAPIView):
@@ -212,6 +218,7 @@ class IssueViewSet(BaseViewSet):
     search_fields = ["name"]
     filter_backends = (ComplexFilterBackend,)
     filterset_class = IssueFilterSet
+    epics = False
 
     def get_serializer_class(self):
         return IssueCreateSerializer if self.action in ["create", "update", "partial_update"] else IssueSerializer
@@ -222,7 +229,7 @@ class IssueViewSet(BaseViewSet):
             workspace__slug=self.kwargs.get("slug"),
         ).distinct()
 
-        return issues
+        return scope_epics(issues, self.epics)
 
     def apply_annotations(self, issues):
         issues = (
@@ -816,11 +823,15 @@ class DeletedIssuesListViewSet(BaseAPIView):
 
 
 class IssuePaginatedViewSet(BaseViewSet):
+    epics = False
+
     def get_queryset(self):
         workspace_slug = self.kwargs.get("slug")
         project_id = self.kwargs.get("project_id")
 
-        issue_queryset = Issue.issue_objects.filter(workspace__slug=workspace_slug, project_id=project_id)
+        issue_queryset = scope_epics(
+            Issue.issue_objects.filter(workspace__slug=workspace_slug, project_id=project_id), self.epics
+        )
 
         return (
             issue_queryset.select_related("state")
@@ -903,7 +914,7 @@ class IssuePaginatedViewSet(BaseViewSet):
             required_fields.append("description_html")
 
         # querying issues
-        base_queryset = Issue.issue_objects.filter(workspace__slug=slug, project_id=project_id)
+        base_queryset = scope_epics(Issue.issue_objects.filter(workspace__slug=slug, project_id=project_id), self.epics)
 
         base_queryset = base_queryset.order_by("updated_at")
         queryset = self.get_queryset().order_by("updated_at")
@@ -977,6 +988,7 @@ class IssuePaginatedViewSet(BaseViewSet):
 class IssueDetailEndpoint(BaseAPIView):
     filter_backends = (ComplexFilterBackend,)
     filterset_class = IssueFilterSet
+    epics = False
 
     def apply_annotations(self, issues):
         return (
@@ -1057,7 +1069,7 @@ class IssueDetailEndpoint(BaseAPIView):
             .values("id")
         )
         # Main issue query
-        issue = Issue.issue_objects.filter(workspace__slug=slug, project_id=project_id).filter(
+        issue = scope_epics(Issue.issue_objects.filter(workspace__slug=slug, project_id=project_id), self.epics).filter(
             Exists(permission_subquery)
         )
 
