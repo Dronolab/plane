@@ -23,6 +23,7 @@ from plane.db.models import FileAsset, Profile, User, WorkspaceMemberInvite
 from plane.license.utils.instance_value import get_configuration_value
 from plane.settings.storage import S3Storage
 from plane.utils.exception_logger import log_exception
+from plane.utils.dronolab import is_allowed_email
 from plane.utils.host import base_host
 from plane.utils.ip_address import get_client_ip
 from plane.authentication.utils.password import is_password_strong
@@ -77,6 +78,14 @@ class Adapter:
             validate_email(email)
         except ValidationError:
             self.logger.warning("Email is not valid")
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["INVALID_EMAIL"],
+                error_message="INVALID_EMAIL",
+                payload={"email": email},
+            )
+        # Dronolab: school addresses only (etsmtl.ca and its sub-domains)
+        if not is_allowed_email(email):
+            self.logger.warning("Email domain is not allowed")
             raise AuthenticationException(
                 error_code=AUTHENTICATION_ERROR_CODES["INVALID_EMAIL"],
                 error_message="INVALID_EMAIL",

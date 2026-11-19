@@ -128,6 +128,9 @@ from .issue.base import (
     IssueDetailIdentifierEndpoint,
 )
 
+# Dronolab: workspace ownership transfer
+from .workspace.ownership import WorkspaceTransferOwnershipEndpoint
+
 # Dronolab: epics
 from .issue.epic import (
     EpicViewSet,
