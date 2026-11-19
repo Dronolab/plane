@@ -35,6 +35,7 @@ from plane.app.views import (
     EpicPaginatedViewSet,
     EpicDetailEndpoint,
     EpicProgressEndpoint,
+    WorkItemTypesEndpoint,
 )
 
 urlpatterns = [
@@ -288,6 +289,11 @@ urlpatterns = [
         name="issue-detail-identifier",
     ),
     # Dronolab: epics
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/work-item-types/",
+        WorkItemTypesEndpoint.as_view(),
+        name="project-work-item-types",
+    ),
     path(
         "workspaces/<str:slug>/projects/<uuid:project_id>/epics/",
         EpicViewSet.as_view({"get": "list", "post": "create"}),

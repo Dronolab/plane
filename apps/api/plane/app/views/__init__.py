@@ -134,6 +134,7 @@ from .issue.epic import (
     EpicPaginatedViewSet,
     EpicDetailEndpoint,
     EpicProgressEndpoint,
+    WorkItemTypesEndpoint,
 )
 
 from .issue.activity import IssueActivityEndpoint

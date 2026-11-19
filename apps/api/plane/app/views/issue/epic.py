@@ -29,6 +29,22 @@ class EpicViewSet(IssueViewSet):
         return super().create(request, slug=slug, project_id=project_id)
 
 
+class WorkItemTypesEndpoint(BaseAPIView):
+    """The project's work item types (Epic, Story, Task), created on first use."""
+
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
+    def get(self, request, slug, project_id):
+        project = Project.objects.get(pk=project_id, workspace__slug=slug)
+        types = ensure_work_item_types(project)
+        return Response(
+            [
+                {"id": str(t.id), "name": t.name, "is_epic": t.is_epic, "level": t.level, "is_default": t.is_default}
+                for t in types.values()
+            ],
+            status=status.HTTP_200_OK,
+        )
+
+
 class EpicPaginatedViewSet(IssuePaginatedViewSet):
     epics = True
 

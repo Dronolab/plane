@@ -25,7 +25,11 @@ export type TEpicProgress = {
 export type TEpicChild = Pick<
   TIssue,
   "id" | "name" | "sequence_id" | "project_id" | "state_id" | "priority" | "target_date" | "sub_issues_count"
-> & { state_group?: string };
+> & {
+  state_group?: string;
+  // Dronolab: work item type id for displaying type badge on epic children
+  type_id?: string | null;
+};
 
 export class EpicService extends APIService {
   constructor() {

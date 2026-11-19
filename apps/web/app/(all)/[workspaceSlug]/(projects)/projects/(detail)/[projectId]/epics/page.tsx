@@ -15,10 +15,10 @@ const epicService = new EpicService();
 
 const STATE_GROUP_META: Record<string, { label: string; className: string }> = {
   backlog: { label: "Backlog", className: "bg-layer-2 text-tertiary" },
-  unstarted: { label: "À faire", className: "bg-layer-2 text-secondary" },
-  started: { label: "En cours", className: "bg-accent-primary/15 text-accent-primary" },
-  completed: { label: "Terminé", className: "bg-success-subtle text-success-primary" },
-  cancelled: { label: "Annulé", className: "bg-layer-2 text-tertiary line-through" },
+  unstarted: { label: "Todo", className: "bg-layer-2 text-secondary" },
+  started: { label: "In progress", className: "bg-accent-primary/15 text-accent-primary" },
+  completed: { label: "Done", className: "bg-success-subtle text-success-primary" },
+  cancelled: { label: "Cancelled", className: "bg-layer-2 text-tertiary line-through" },
 };
 
 function StateGroupPill({ group }: { group?: string }) {
@@ -96,7 +96,7 @@ function EpicsListPage({ params }: Route.ComponentProps) {
       setName("");
       await mutate();
     } catch {
-      setCreateError("Impossible de créer l'epic.");
+      setCreateError("Failed to create epic.");
     } finally {
       setIsCreating(false);
     }
@@ -112,7 +112,7 @@ function EpicsListPage({ params }: Route.ComponentProps) {
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Nom de l'epic…"
+              placeholder="Epic name…"
               disabled={isCreating}
               className="flex-1 rounded-md border border-subtle bg-layer-1 px-3 py-2 text-body-sm-regular text-primary outline-none focus:border-accent-strong disabled:opacity-60"
             />
@@ -121,7 +121,7 @@ function EpicsListPage({ params }: Route.ComponentProps) {
               variant="primary"
               size="md"
               stretch="auto"
-              label="Créer l'epic"
+              label="Create epic"
               disabled={isCreating || !name.trim()}
               loading={isCreating}
             />
@@ -130,12 +130,12 @@ function EpicsListPage({ params }: Route.ComponentProps) {
         </div>
 
         {isLoading && !epics ? (
-          <p className="text-body-sm-regular text-tertiary">Chargement…</p>
+          <p className="text-body-sm-regular text-tertiary">Loading…</p>
         ) : sortedEpics.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-md border border-subtle bg-layer-1 px-6 py-16 text-center">
             <EpicOutline className="h-8 w-8 text-tertiary" />
             <p className="text-body-sm-regular text-secondary">
-              Aucun epic pour l&apos;instant. Créez-en un ci-dessus.
+              No epics yet. Create one above.
             </p>
           </div>
         ) : (
@@ -157,7 +157,7 @@ function EpicsListPage({ params }: Route.ComponentProps) {
                   <div className="flex shrink-0 items-center gap-4 text-body-xs-regular text-tertiary">
                     {epic.target_date && <span>{epic.target_date}</span>}
                     <span>
-                      {childCount} {childCount > 1 ? "éléments" : "élément"}
+                      {childCount} {childCount === 1 ? "item" : "items"}
                     </span>
                     <EpicProgressBar workspaceSlug={workspaceSlug} projectId={projectId} epicId={epic.id} />
                   </div>

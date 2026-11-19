@@ -43,6 +43,7 @@ from plane.db.models import (
     IssueDescriptionVersion,
     ProjectMember,
     EstimatePoint,
+    IssueType,
 )
 from plane.db.models.issue_type import ProjectIssueType
 from plane.utils.content_validator import (
@@ -89,6 +90,10 @@ class IssueCreateSerializer(BaseSerializer):
     )
     parent_id = serializers.PrimaryKeyRelatedField(
         source="parent", queryset=Issue.objects.all(), required=False, allow_null=True
+    )
+    # Dronolab: lets the web app set the work item type (Story / Task) by id
+    type_id = serializers.PrimaryKeyRelatedField(
+        source="type", queryset=IssueType.objects.all(), required=False, allow_null=True
     )
     label_ids = serializers.ListField(
         child=serializers.PrimaryKeyRelatedField(queryset=Label.objects.all()),
@@ -205,6 +210,13 @@ class IssueCreateSerializer(BaseSerializer):
             ).first()
             if default_type:
                 attrs["type"] = default_type.issue_type
+        if (
+            attrs.get("type")
+            and not ProjectIssueType.objects.filter(
+                project_id=self.context.get("project_id"), issue_type=attrs["type"]
+            ).exists()
+        ):
+            raise serializers.ValidationError({"type_id": "This type is not enabled in the project."})
         if "parent" in attrs or "type" in attrs:
             child_type = attrs["type"] if "type" in attrs else getattr(self.instance, "type", None)
             parent = attrs["parent"] if "parent" in attrs else getattr(self.instance, "parent", None)
@@ -965,12 +977,15 @@ class IssueDetailSerializer(IssueSerializer):
     description_html = serializers.CharField()
     is_subscribed = serializers.BooleanField(read_only=True)
     is_intake = serializers.BooleanField(read_only=True)
+    # Dronolab: work item type for the Type property
+    type_id = serializers.UUIDField(read_only=True, allow_null=True)
 
     class Meta(IssueSerializer.Meta):
         fields = IssueSerializer.Meta.fields + [
             "description_html",
             "is_subscribed",
             "is_intake",
+            "type_id",
         ]
         read_only_fields = fields
 

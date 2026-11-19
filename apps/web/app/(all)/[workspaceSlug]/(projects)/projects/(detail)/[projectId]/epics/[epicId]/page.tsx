@@ -2,6 +2,8 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { PageHead } from "@/components/core/page-title";
+// Dronolab: work item type badge for epic children
+import { WorkItemTypeBadge } from "@/components/issues/work-item-type-badge";
 import { useProject } from "@/hooks/store/use-project";
 import { EpicService } from "@/services/epic.service";
 import type { Route } from "./+types/page";
@@ -12,10 +14,10 @@ const epicService = new EpicService();
 
 const STATE_GROUP_META: Record<string, { label: string; className: string }> = {
   backlog: { label: "Backlog", className: "bg-layer-2 text-tertiary" },
-  unstarted: { label: "À faire", className: "bg-layer-2 text-secondary" },
-  started: { label: "En cours", className: "bg-accent-primary/15 text-accent-primary" },
-  completed: { label: "Terminé", className: "bg-success-subtle text-success-primary" },
-  cancelled: { label: "Annulé", className: "bg-layer-2 text-tertiary line-through" },
+  unstarted: { label: "Todo", className: "bg-layer-2 text-secondary" },
+  started: { label: "In progress", className: "bg-accent-primary/15 text-accent-primary" },
+  completed: { label: "Done", className: "bg-success-subtle text-success-primary" },
+  cancelled: { label: "Cancelled", className: "bg-layer-2 text-tertiary line-through" },
 };
 
 function StateGroupPill({ group }: { group?: string }) {
@@ -70,7 +72,7 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
       <>
         <PageHead title={pageTitle} />
         <div className="mx-auto w-full max-w-5xl px-6 py-6">
-          <p className="text-body-sm-regular text-tertiary">Chargement…</p>
+          <p className="text-body-sm-regular text-tertiary">Loading…</p>
         </div>
       </>
     );
@@ -81,12 +83,12 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
       <>
         <PageHead title={pageTitle} />
         <div className="mx-auto flex w-full max-w-5xl flex-col items-start gap-3 px-6 py-8">
-          <p className="text-body-md-medium text-primary">Epic introuvable.</p>
+          <p className="text-body-md-medium text-primary">Epic not found.</p>
           <Link
             href={`/${workspaceSlug}/projects/${projectId}/epics`}
             className="inline-flex items-center rounded-md border border-subtle bg-layer-1 px-3 py-1.5 text-body-xs-medium text-primary transition-colors hover:bg-layer-1-hover"
           >
-            Retour aux epics
+            Back to epics
           </Link>
         </div>
       </>
@@ -97,10 +99,10 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
   const progressGroups = progress
     ? [
         { key: "backlog", label: "Backlog", count: progress.backlog },
-        { key: "unstarted", label: "À faire", count: progress.unstarted },
-        { key: "started", label: "En cours", count: progress.started },
-        { key: "completed", label: "Terminé", count: progress.completed },
-        { key: "cancelled", label: "Annulé", count: progress.cancelled },
+        { key: "unstarted", label: "Todo", count: progress.unstarted },
+        { key: "started", label: "In progress", count: progress.started },
+        { key: "completed", label: "Done", count: progress.completed },
+        { key: "cancelled", label: "Cancelled", count: progress.cancelled },
       ]
     : [];
 
@@ -118,7 +120,7 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
               href={`/${workspaceSlug}/browse/${identifier}-${epic.sequence_id}`}
               className="inline-flex shrink-0 items-center rounded-md border border-subtle bg-layer-1 px-3 py-2 text-body-xs-medium text-primary transition-colors hover:bg-layer-1-hover"
             >
-              Ouvrir comme work item
+              Open as work item
             </Link>
           )}
         </div>
@@ -134,10 +136,10 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
 
         <section className="flex flex-col gap-4 rounded-md border border-subtle bg-layer-1 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-body-sm-medium text-primary">{progressPercent} % terminé</span>
+            <span className="text-body-sm-medium text-primary">{progressPercent}% complete</span>
             {progress && (
               <span className="text-body-xs-regular text-tertiary">
-                {progress.stories} {progress.stories > 1 ? "stories" : "story"}
+                {progress.stories} {progress.stories === 1 ? "story" : "stories"}
               </span>
             )}
           </div>
@@ -163,12 +165,12 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
         </section>
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-h6-semibold text-primary">Éléments de l&apos;epic</h2>
+          <h2 className="text-h6-semibold text-primary">Epic items</h2>
           {isChildrenLoading && !children ? (
-            <p className="text-body-sm-regular text-tertiary">Chargement…</p>
+            <p className="text-body-sm-regular text-tertiary">Loading…</p>
           ) : !children || children.length === 0 ? (
             <div className="rounded-md border border-subtle bg-layer-1 px-4 py-6 text-body-sm-regular text-tertiary">
-              Aucun élément dans cet epic.
+              No items in this epic.
             </div>
           ) : (
             <div className="divide-y divide-subtle overflow-hidden rounded-md border border-subtle bg-layer-1">
@@ -178,12 +180,14 @@ function EpicDetailPage({ params }: Route.ComponentProps) {
                 const rowContent = (
                   <>
                     <div className="flex min-w-0 flex-1 items-center gap-3">
+                      {/* Dronolab: work item type badge before identifier */}
+                      <WorkItemTypeBadge projectId={projectId} typeId={child.type_id} />
                       <span className="shrink-0 font-mono text-body-xs-medium text-tertiary">{childKey}</span>
                       <span className="truncate text-body-sm-medium text-primary">{child.name}</span>
                       <StateGroupPill group={child.state_group} />
                     </div>
                     <span className="shrink-0 text-body-xs-regular text-tertiary">
-                      {subCount} {subCount > 1 ? "sous-éléments" : "sous-élément"}
+                      {subCount} {subCount === 1 ? "sub-item" : "sub-items"}
                     </span>
                   </>
                 );

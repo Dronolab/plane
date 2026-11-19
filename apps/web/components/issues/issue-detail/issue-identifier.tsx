@@ -11,6 +11,7 @@ import type { TIssueIdentifierProps } from "@plane/types";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useProject } from "@/hooks/store/use-project";
 import { IdentifierText } from "@/components/issues/issue-detail/identifier-text";
+import { WorkItemTypeBadge } from "@/components/issues/work-item-type-badge";
 
 export const IssueIdentifier = observer(function IssueIdentifier(props: TIssueIdentifierProps) {
   const { projectId, variant, size, displayProperties, enableClickToCopyIdentifier = false } = props;
@@ -29,8 +30,12 @@ export const IssueIdentifier = observer(function IssueIdentifier(props: TIssueId
 
   if (!shouldRenderIssueID) return null;
 
+  // Dronolab: work item type badge (Epic / Story / Task / Subtask)
+  const parentTypeId = issue?.parent_id ? getIssueById(issue.parent_id)?.type_id : undefined;
+
   return (
     <div className="flex shrink-0 items-center space-x-2">
+      {issue && <WorkItemTypeBadge projectId={projectId} typeId={issue.type_id} parentTypeId={parentTypeId} />}
       <IdentifierText
         identifier={`${projectIdentifier}-${issueSequenceId}`}
         enableClickToCopyIdentifier={enableClickToCopyIdentifier}

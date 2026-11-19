@@ -197,6 +197,7 @@ class IssueListEndpoint(BaseAPIView):
                 "label_ids",
                 "assignee_ids",
                 "sub_issues_count",
+                "type_id",  # Dronolab: work item type
                 "created_at",
                 "updated_at",
                 "created_by",
@@ -463,6 +464,7 @@ class IssueViewSet(BaseViewSet):
                     "label_ids",
                     "assignee_ids",
                     "sub_issues_count",
+                    "type_id",  # Dronolab: work item type
                     "created_at",
                     "updated_at",
                     "created_by",
@@ -908,6 +910,7 @@ class IssuePaginatedViewSet(BaseViewSet):
             "link_count",
             "attachment_count",
             "sub_issues_count",
+            "type_id",  # Dronolab: work item type
         ]
 
         if str(is_description_required).lower() == "true":

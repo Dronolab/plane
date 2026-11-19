@@ -190,6 +190,7 @@ class SubIssuesEndpoint(BaseAPIView):
                 "label_ids",
                 "assignee_ids",
                 "sub_issues_count",
+                "type_id",  # Dronolab: work item type
                 "created_at",
                 "updated_at",
                 "created_by",
