@@ -3,14 +3,19 @@
 #   python manage.py dronolab_setup --owner someone@ens.etsmtl.ca
 #
 # Idempotent: re-running renames the workspaces back, re-adds the owner as admin and
-# re-locks workspace creation. Existing members already in the database also join the
-# open workspace.
+# re-locks workspace creation. When DRONOLAB_AUTO_JOIN_OPEN_WORKSPACE=1, existing
+# members already in the database also join the open workspace.
 
 from django.core.management.base import BaseCommand, CommandError
 
 from plane.db.models import User
 from plane.license.models import InstanceConfiguration
-from plane.utils.dronolab import auto_join_open_workspace, ensure_workspaces, is_allowed_email
+from plane.utils.dronolab import (
+    auto_join_open_workspace,
+    ensure_workspaces,
+    is_allowed_email,
+    is_auto_join_enabled,
+)
 
 
 class Command(BaseCommand):
@@ -28,7 +33,8 @@ class Command(BaseCommand):
             raise CommandError(f"No account for {email}; sign up first")
 
         for workspace, created in ensure_workspaces(owner):
-            self.stdout.write(f"{'created' if created else 'kept'} {workspace.slug} ({workspace.name}), owner {workspace.owner.email}")
+            action = "created" if created else "kept"
+            self.stdout.write(f"{action} {workspace.slug} ({workspace.name}), owner {workspace.owner.email}")
 
         InstanceConfiguration.objects.update_or_create(
             key="DISABLE_WORKSPACE_CREATION",
@@ -36,6 +42,9 @@ class Command(BaseCommand):
         )
         self.stdout.write("workspace creation disabled")
 
-        for user in User.objects.filter(is_bot=False, is_active=True):
-            auto_join_open_workspace(user)
-        self.stdout.write("existing school accounts joined the open workspace")
+        if is_auto_join_enabled():
+            for user in User.objects.filter(is_bot=False, is_active=True):
+                auto_join_open_workspace(user)
+            self.stdout.write("existing school accounts joined the open workspace")
+        else:
+            self.stdout.write("auto-join disabled; existing accounts were not added to the open workspace")

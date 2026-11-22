@@ -9,5 +9,5 @@ from .workspace_project_join import process_workspace_project_invitations
 
 def post_user_auth_workflow(user, is_signup, request):
     process_workspace_project_invitations(user=user)
-    # Dronolab: every school account belongs to the open club workspace
+    # Dronolab: auto-join the open club workspace only when DRONOLAB_AUTO_JOIN_OPEN_WORKSPACE=1
     auto_join_open_workspace(user)

@@ -2,8 +2,10 @@
 #
 # - Only addresses on DRONOLAB_EMAIL_DOMAIN (etsmtl.ca and its sub-domains, e.g. ens.etsmtl.ca)
 #   can sign up or sign in.
-# - Every account joins the open workspace (and its public projects) automatically.
-# - The admin workspace is invitation-only.
+# - Auto-joining the open workspace is off by default (DRONOLAB_AUTO_JOIN_OPEN_WORKSPACE=0),
+#   so new accounts have no workspace access until invited by an admin. Set
+#   DRONOLAB_AUTO_JOIN_OPEN_WORKSPACE=1 to re-enable auto-join (e.g. once SMTP verification is on).
+# - The admin workspace is always invitation-only.
 # - Each workspace has one owner; ownership moves with the transfer-ownership endpoint.
 
 import os
@@ -24,8 +26,15 @@ def is_allowed_email(email):
     return domain == EMAIL_DOMAIN or domain.endswith("." + EMAIL_DOMAIN)
 
 
+def is_auto_join_enabled():
+    return os.environ.get("DRONOLAB_AUTO_JOIN_OPEN_WORKSPACE", "0").strip().lower() in ("1", "true", "yes")
+
+
 def auto_join_open_workspace(user):
     """Add the user to the open workspace and its public projects, as a member. Idempotent."""
+    if not is_auto_join_enabled():
+        return
+
     from plane.db.models import Project, ProjectMember, Workspace, WorkspaceMember
 
     if user.is_bot or not is_allowed_email(user.email):
