@@ -10,6 +10,7 @@ import pytest
 from rest_framework import status
 
 from plane.db.models import Issue, IssueType, Project, ProjectMember, Workspace
+from plane.db.models.issue_type import ProjectIssueType
 from plane.utils.work_item_types import ensure_work_item_types
 
 
@@ -55,7 +56,7 @@ class TestWorkItemTypeList:
         assert set(by_name) == {"Epic", "Story", "Task"}
         assert by_name["Epic"]["is_epic"] is True
         assert by_name["Task"]["is_default"] is True
-        assert project.project_issue_types.count() == 3
+        assert ProjectIssueType.objects.filter(project=project).count() == 3
 
     def test_is_idempotent(self, api_key_client, workspace, project):
         first = api_key_client.get(types_url(workspace, project)).data
