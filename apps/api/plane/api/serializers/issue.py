@@ -27,10 +27,12 @@ from plane.db.models import (
     User,
     EstimatePoint,
 )
+from plane.db.models.issue_type import ProjectIssueType
 from plane.utils.content_validator import (
     validate_html_content,
     validate_binary_data,
 )
+from plane.utils.work_item_types import nesting_error
 
 from .base import BaseSerializer
 from .cycle import CycleLiteSerializer, CycleSerializer
@@ -168,6 +170,26 @@ class IssueSerializer(BaseSerializer):
             ).exists()
         ):
             raise serializers.ValidationError("Parent is not valid issue_id please pass a valid issue_id")
+
+        # Dronolab: the type must be enabled in the project, and Epic > Story > Task nesting holds.
+        if (
+            data.get("type")
+            and not ProjectIssueType.objects.filter(
+                project_id=self.context.get("project_id"), issue_type=data["type"]
+            ).exists()
+        ):
+            raise serializers.ValidationError({"type_id": "This type is not enabled in the project."})
+        if "parent" in data or "type" in data:
+            child_type = data["type"] if "type" in data else getattr(self.instance, "type", None)
+            parent = data["parent"] if "parent" in data else getattr(self.instance, "parent", None)
+            error = nesting_error(child_type, parent)
+            if error:
+                raise serializers.ValidationError({"parent_id": error})
+        if self.instance is not None and data.get("type") and data["type"] != self.instance.type:
+            for child in Issue.issue_objects.filter(parent=self.instance).select_related("type"):
+                error = nesting_error(child.type, Issue(type=data["type"]))
+                if error:
+                    raise serializers.ValidationError({"type_id": f"A sub-work item does not fit: {error}"})
 
         if (
             data.get("estimate_point")
