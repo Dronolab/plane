@@ -55,10 +55,7 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
   const pathname = usePathname();
 
   // auth
-  const isAuthorizedUser = allowPermissions(
-    [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
-  );
+  const isAuthorizedUser = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
 
   // Compute limited projects for main sidebar
   const displayedProjects = projectPreferences.showLimitedProjects

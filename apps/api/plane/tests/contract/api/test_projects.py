@@ -8,7 +8,7 @@ from uuid import uuid4
 import pytest
 from rest_framework import status
 
-from plane.db.models import Project, ProjectMember, State, User, WorkspaceMember
+from plane.db.models import APIToken, Project, ProjectMember, State, User, WorkspaceMember
 
 
 @pytest.fixture
@@ -48,6 +48,33 @@ class TestProjectListCreateAPIEndpoint:
 
     def get_url(self, workspace_slug):
         return f"/api/v1/workspaces/{workspace_slug}/projects/"
+
+    @pytest.mark.django_db
+    def test_create_project_member_forbidden(self, workspace):
+        """Normal workspace members (role=15) cannot create projects; only workspace admins can."""
+        from rest_framework.test import APIClient
+
+        unique_id = uuid4().hex[:8]
+        member_user = User.objects.create(
+            email=f"member-{unique_id}@plane.so",
+            username=f"member_{unique_id}",
+        )
+        member_user.set_password("test-password")
+        member_user.save()
+        WorkspaceMember.objects.create(workspace=workspace, member=member_user, role=15)
+
+        client = APIClient()
+        token = APIToken.objects.create(user=member_user, label="member-token")
+        client.credentials(HTTP_X_API_KEY=token.token)
+
+        response = client.post(
+            self.get_url(workspace.slug),
+            {"name": "Member Project", "identifier": "MP"},
+            format="json",
+        )
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert Project.objects.count() == 0
 
     @pytest.mark.django_db
     def test_create_project_with_lead_as_creator(self, api_key_client, workspace, create_user):

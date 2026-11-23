@@ -33,10 +33,7 @@ export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
 
   const pathname = usePathname();
   // auth
-  const isAuthorizedUser = allowPermissions(
-    [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
-  );
+  const isAuthorizedUser = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
   const isArchived = pathname.includes("/archives");
 
   return (

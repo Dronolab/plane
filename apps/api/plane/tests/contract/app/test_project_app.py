@@ -124,6 +124,25 @@ class TestProjectAPIPost(TestProjectBase):
         assert ProjectUserProperty.objects.filter(project=project).count() == 2
 
     @pytest.mark.django_db
+    def test_create_project_member_forbidden(self, session_client, workspace):
+        """Test that normal workspace members cannot create projects"""
+        member_user = User.objects.create_user(email="member@example.com", username="member")
+        WorkspaceMember.objects.create(workspace=workspace, member=member_user, role=15)
+
+        session_client.force_authenticate(user=member_user)
+
+        url = self.get_project_url(workspace.slug)
+        project_data = {
+            "name": "Member Project",
+            "identifier": "MP",
+        }
+
+        response = session_client.post(url, project_data, format="json")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert Project.objects.count() == 0
+
+    @pytest.mark.django_db
     def test_create_project_guest_forbidden(self, session_client, workspace):
         """Test that guests cannot create projects"""
         guest_user = User.objects.create_user(email="guest@example.com", username="guest")

@@ -7,19 +7,23 @@
 import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 // plane imports
+import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { Button } from "@makeplane/propel/components/button";
 // assets
 import ProjectDarkEmptyState from "@/app/assets/empty-state/project-settings/no-projects-dark.png?url";
 import ProjectLightEmptyState from "@/app/assets/empty-state/project-settings/no-projects-light.png?url";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
+import { useUserPermissions } from "@/hooks/store/user";
 
 function ProjectSettingsPage() {
   // store hooks
   const { resolvedTheme } = useTheme();
   const { toggleCreateProjectModal } = useCommandPalette();
+  const { allowPermissions } = useUserPermissions();
   // derived values
   const resolvedPath = resolvedTheme === "dark" ? ProjectDarkEmptyState : ProjectLightEmptyState;
+  const canCreateProject = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
   return (
     <div className="mx-auto flex h-full max-w-[480px] flex-col items-center justify-center gap-4">
       <img src={resolvedPath} alt="No projects yet" />
@@ -29,15 +33,17 @@ function ProjectSettingsPage() {
         need to get things done.
       </div>
       {/* Dronolab: no "Learn more" link to plane.so */}
-      <div className="flex gap-2">
-        <Button
-          variant="primary"
-          size="sm"
-          stretch="auto"
-          label="Start your first project"
-          onClick={() => toggleCreateProjectModal(true)}
-        />
-      </div>
+      {canCreateProject && (
+        <div className="flex gap-2">
+          <Button
+            variant="primary"
+            size="sm"
+            stretch="auto"
+            label="Start your first project"
+            onClick={() => toggleCreateProjectModal(true)}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -21,12 +21,12 @@ class ProjectBasePermission(BasePermission):
                 workspace__slug=view.workspace_slug, member=request.user, is_active=True
             ).exists()
 
-        ## Only workspace owners or admins can create the projects
+        ## Only workspace admins can create projects
         if request.method == "POST":
             return WorkspaceMember.objects.filter(
                 workspace__slug=view.workspace_slug,
                 member=request.user,
-                role__in=[ROLE.ADMIN.value, ROLE.MEMBER.value],
+                role=ROLE.ADMIN.value,
                 is_active=True,
             ).exists()
 
